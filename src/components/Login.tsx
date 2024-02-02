@@ -1,14 +1,11 @@
-// RegisterForm.jsx
+// LoginForm.jsx
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Register = () => {
+const Login = () => {
 
-  const handleSubmit = (e:Event) => {
+  const handleSubmit = (e: Event) => {
     e.preventDefault();
-    // Add your registration logic here
-    const nameElement = document.getElementById('name') as HTMLInputElement;
-    const name = nameElement.value;
 
     const emailElement = document.getElementById('email') as HTMLInputElement;
     const email = emailElement.value;
@@ -17,7 +14,6 @@ const Register = () => {
     const password = passwordElement.value;
 
     const userData = {
-      name,
       email,
       password
     };
@@ -25,7 +21,6 @@ const Register = () => {
     console.log(userData);
 
     e.target.reset();
-
   };
 
   return (
@@ -34,20 +29,8 @@ const Register = () => {
         <div className="col-5">
           <div className="card">
             <div className="card-body">
-              <h2 className="text-center mb-4">Register</h2>
+              <h2 className="text-center mb-4">Login</h2>
               <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    className="form-control"
-                    required
-                  />
-                </div>
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label">
                     Email
@@ -73,7 +56,7 @@ const Register = () => {
                   />
                 </div>
                 <button type="submit" className="btn btn-danger w-100">
-                  Register
+                  Login
                 </button>
               </form>
             </div>
@@ -84,6 +67,6 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
 
 // KC
