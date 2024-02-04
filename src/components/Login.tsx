@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Login = () => {
 
-  const handleSubmit = (e: Event) => {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
 
     const emailElement = document.getElementById('email') as HTMLInputElement;
@@ -18,9 +18,20 @@ const Login = () => {
       password
     };
 
-    console.log(userData);
-
     e.target.reset();
+
+    const response = await fetch('http://localhost:3000/api/v1/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData),
+      credentials: 'include',
+    });
+
+    const jsonResp = await response.json();
+
+    console.log(jsonResp);
   };
 
   return (

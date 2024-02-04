@@ -1,9 +1,14 @@
 // LandingForm.jsx
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const Landing = () => {
 
-  const handleSubmit = (e: Event) => {
+  const navigate = useNavigate();
+
+  const { table_number } = useParams();
+
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
 
     const nameElement = document.getElementById('name') as HTMLInputElement;
@@ -14,11 +19,29 @@ const Landing = () => {
 
     const userData = {
       name,
-      phone
+      phone,
+      table_number
     };
 
+    console.log(userData);
 
     e.target.reset();
+
+    const response = await fetch(`http://localhost:3000/api/v1/users/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    });
+
+    const jsonResp = await response.json();
+
+    console.log(jsonResp);
+
+    if (jsonResp.status === true) {
+      navigate(`/user/verify-otp/${table_number}/${jsonResp.content.data.id}`);
+    }
   };
 
   return (

@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Register = () => {
 
-  const handleSubmit = (e:Event) => {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
     // Add your registration logic here
     const nameElement = document.getElementById('name') as HTMLInputElement;
@@ -16,16 +16,25 @@ const Register = () => {
     const passwordElement = document.getElementById('password') as HTMLInputElement;
     const password = passwordElement.value;
 
+    e.target.reset();
+
     const userData = {
       name,
       email,
       password
     };
 
-    console.log(userData);
+    const response = await fetch('http://localhost:3000/api/v1/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    });
 
-    e.target.reset();
+    const jsonResp = await response.json();
 
+    console.log(jsonResp);
   };
 
   return (
