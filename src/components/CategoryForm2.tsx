@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -9,35 +9,37 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '../components/ui/select';
+
+import { Icategory } from '../types/categoryType';
 
 // call back
 const createCategory = async (name: string) => {
-  console.log("name in createCategoryCB", name);
+  console.log('name in createCategoryCB', name);
   await axios
     .post(
-      "http://localhost:3000/api/v1/products/category",
+      'http://localhost:3000/api/v1/products/category',
       { name },
       {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       }
     )
     .then((response) => {
-      console.log("Response creating catgeory:", response.data);
+      console.log('Response creating catgeory:', response.data);
     })
     .catch((error) => {
-      console.log("ERROR creating catgeory:", error);
+      console.log('ERROR creating catgeory:', error);
     });
   // fetch("http://localhost:3000/api/v1/products/category", {
   //   method: "POST",
@@ -48,13 +50,46 @@ const createCategory = async (name: string) => {
   // });
 };
 
+const fetchCategories = async () => {
+  const response = await (
+    await fetch('http://localhost:3000/api/v1/products/category/all', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  ).json();
+
+  console.log('Resonse:', response);
+  return response.content.data;
+};
+
 export function CategoryForm2() {
-  const [createText, setCreateText] = useState("");
+  const [createText, setCreateText] = useState('');
+
+  const {
+    isPending: isCategoryPending,
+    error: isCategoryError,
+    data: categories,
+  } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories,
+    staleTime: 10000,
+    refetchOnMount: false,
+  });
 
   // mutation to create catgeory
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
   });
+
+  if(isCategoryPending){
+    return <div>Fetching Categories...</div>
+  }
+
+  if(isCategoryError){
+    return <div>Error Fetching Categories...</div>
+  }
 
   if (createCategoryMutation.isPending) {
     return <div> Creating...</div>;
@@ -114,10 +149,13 @@ export function CategoryForm2() {
                       <SelectValue placeholder="Click to Select" />
                     </SelectTrigger>
                     <SelectContent position="popper">
-                      <SelectItem value="next">Next.js</SelectItem>
-                      <SelectItem value="sveltekit">SvelteKit</SelectItem>
-                      <SelectItem value="astro">Astro</SelectItem>
-                      <SelectItem value="nuxt">Nuxt.js</SelectItem>
+                      {categories
+                        ? categories.map((cat: Icategory) => {
+                            return (
+                              <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                            );
+                          })
+                        : null}
                     </SelectContent>
                   </Select>
                 </div>

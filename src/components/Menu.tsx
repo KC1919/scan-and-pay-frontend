@@ -1,7 +1,7 @@
-// import React from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 // import { CategoryRounded } from "@mui/icons-material";
-import { Icategory } from "@/types/categoryType";
+import { Icategory } from "../types/categoryType";
 
 const fetchCategories = async () => {
   const response = await (
@@ -28,7 +28,7 @@ const fetchProducts = async () => {
   ).json();
 
   console.log("Response fetch products:", response);
-  return response.content.data.result;
+  return response.content.data;
 };
 
 const Menu = () => {
@@ -62,8 +62,11 @@ const Menu = () => {
   if (errorProducts || errorCategories) return <>Error</>;
   return (
     <div>
-      {categories.map((cat: Icategory) => {
-        <div> {cat.name}</div>;
+      {/* {categories.map((cat: Icategory) => {
+        return <div> {cat.name}</div>;
+      })} */}
+      {products.map((product) => {
+        return <div> {product.name}</div>;
       })}
     </div>
   );
