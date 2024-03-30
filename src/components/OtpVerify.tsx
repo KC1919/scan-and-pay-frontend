@@ -15,8 +15,6 @@ const OtpVerify = () => {
     const otpElement = document.getElementById('otp') as HTMLInputElement;
     const otp = otpElement.value;
 
-    console.log(otp);
-
     e.target.reset();
 
     const userData = {
@@ -38,6 +36,7 @@ const OtpVerify = () => {
 
     console.log(jsonResp);
 
+    // if the otp is verified successfully, redirect the user to the menu page
     if (jsonResp.status === true) {
       navigate('/menu');
     }

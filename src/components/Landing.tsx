@@ -1,13 +1,16 @@
 // LandingForm.jsx
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import React from 'react';
-
+import React, { useContext } from 'react';
+import { AppContext } from './Context/AppContext';
 const Landing = () => {
+  const { setTableNumber } = useContext(AppContext);
 
   const navigate = useNavigate();
 
   const { table_number } = useParams();
+
+  setTableNumber(table_number);
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -21,7 +24,7 @@ const Landing = () => {
     const userData = {
       name,
       phone,
-      table_number
+      table_number,
     };
 
     console.log(userData);
@@ -31,9 +34,9 @@ const Landing = () => {
     const response = await fetch(`http://localhost:3000/api/v1/users/create`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(userData)
+      body: JSON.stringify(userData),
     });
 
     const jsonResp = await response.json();

@@ -1,73 +1,78 @@
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useContext } from 'react';
+import { useQuery } from '@tanstack/react-query';
 // import { CategoryRounded } from "@mui/icons-material";
-import { Icategory } from "../types/categoryType";
+import { Icategory } from '../types/categoryType';
+import { AppContext } from './Context/AppContext';
+import Product from './Product';
 
 const fetchCategories = async () => {
   const response = await (
-    await fetch("http://localhost:3000/api/v1/products/category/all", {
-      method: "GET",
+    await fetch('http://localhost:3000/api/v1/products/category/all', {
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     })
   ).json();
 
-  console.log("Resonse:", response);
+  console.log('Resonse:', response);
   return response.content.data;
 };
 
-const fetchProducts = async () => {
-  const response = await (
-    await fetch("http://localhost:3000/api/v1/products/all", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-  ).json();
+// const fetchProducts = async () => {
+//   const response = await (
+//     await fetch('http://localhost:3000/api/v1/products/all', {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     })
+//   ).json();
 
-  console.log("Response fetch products:", response);
-  return response.content.data;
-};
+//   console.log('Response fetch products:', response);
+//   return response.content.data;
+// };
 
 const Menu = () => {
+  const { cartProducts, setCartProducts } = useContext(AppContext);
+
   // use Query hooks
   const {
     isPending: isPendingCategories,
     error: errorCategories,
     data: categories,
   } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ['categories'],
     queryFn: fetchCategories,
     staleTime: 10000,
     refetchOnMount: false,
   });
 
-  const {
-    isPending: isPendingProducts,
-    error: errorProducts,
-    data: products,
-  } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
-    staleTime: 10000,
-    refetchOnMount: false,
-  });
+  // const {
+  //   isPending: isPendingProducts,
+  //   error: errorProducts,
+  //   data: products,
+  // } = useQuery({
+  //   queryKey: ['products'],
+  //   queryFn: fetchProducts,
+  //   staleTime: 10000,
+  //   refetchOnMount: false,
+  // });
 
-  console.log("Categories:", categories);
-  console.log("Products:", products);
+  console.log('Categories:', categories);
+  // console.log('Products:', products);
 
-  if (isPendingCategories || isPendingProducts) return <>Loading</>;
-  if (errorProducts || errorCategories) return <>Error</>;
+  if (isPendingCategories) return <>Loading</>;
+  if (errorCategories) return <>Error</>;
   return (
     <div>
       {/* {categories.map((cat: Icategory) => {
         return <div> {cat.name}</div>;
       })} */}
-      {products.map((product) => {
+      {/* {products.map((product) => {
         return <div> {product.name}</div>;
-      })}
+      })} */}
+      <Product />
     </div>
   );
 };
