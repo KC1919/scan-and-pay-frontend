@@ -8,6 +8,7 @@ import Login from './components/Login';
 import OtpVerify from './components/OtpVerify';
 import Landing from './components/Landing';
 import { AppContext } from './components/Context/AppContext';
+import Order from './components/Order';
 // import { useQuery } from "@tanstack/react-query";
 function App() {
   const [tableNumber, setTableNumber] = useState('');
@@ -35,6 +36,7 @@ function App() {
               element={<OtpVerify />}
             />
             <Route path="/menu" element={<Menu />} />
+            <Route path="/user/order" element={<Order />} />
           </Routes>
         </Router>
       </AppContext.Provider>

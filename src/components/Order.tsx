@@ -11,13 +11,28 @@
 }
 */
 
-
-import React from 'react'
+import React, { useContext } from 'react';
+import { AppContext } from './Context/AppContext';
+import Item from './Item';
 
 const Order = () => {
+  const { cartProducts } = useContext(AppContext);
+  console.log('Order products:', cartProducts);
+  
   return (
-    <div>Order</div>
-  )
-}
+    <div>
+      {cartProducts.map((product) => {
+        return (
+          <Item
+            name={product.name}
+            id={product.id}
+            price={product.sellingPrice}
+            qty={product.quantity}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
-export default Order
+export default Order;

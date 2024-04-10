@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Icategory } from '../types/categoryType';
 import { AppContext } from './Context/AppContext';
 import Product from './Product';
+import { useNavigate } from 'react-router';
 
 const fetchCategories = async () => {
   const response = await (
@@ -34,6 +35,7 @@ const fetchCategories = async () => {
 // };
 
 const Menu = () => {
+  const navigate = useNavigate();
   const { cartProducts, setCartProducts } = useContext(AppContext);
 
   // use Query hooks
@@ -64,6 +66,11 @@ const Menu = () => {
 
   if (isPendingCategories) return <>Loading</>;
   if (errorCategories) return <>Error</>;
+
+  const handleOrder = (e) => {
+    navigate('/user/order');
+  };
+
   return (
     <div>
       {/* {categories.map((cat: Icategory) => {
@@ -73,6 +80,9 @@ const Menu = () => {
         return <div> {product.name}</div>;
       })} */}
       <Product />
+      <div style={{backgroundColor:'blue'}}>
+        <button onClick={handleOrder}>Order</button>
+      </div>
     </div>
   );
 };
