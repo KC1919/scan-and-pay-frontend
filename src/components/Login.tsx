@@ -36,6 +36,8 @@ const Login = () => {
     const jsonResp = await response.json();
 
     console.log(jsonResp);
+
+    navigate('/')
   };
 
   return (

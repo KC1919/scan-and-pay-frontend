@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { TProduct } from '../types/productType';
 // import { CategoryRounded } from "@mui/icons-material";
-import { AppContext } from './Context/AppContext';
 
 const fetchProducts = async () => {
   const response = await (
     await fetch('http://localhost:3000/api/v1/products/all', {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -17,9 +17,7 @@ const fetchProducts = async () => {
   return response.content.data;
 };
 
-const Product = () => {
-  const { cartProducts, setCartProducts } = useContext(AppContext);
-
+const Product = (props) => {
   const handleAddToCart = (e) => {
     try {
       let present = false;
@@ -115,49 +113,68 @@ const Product = () => {
   } = useQuery({
     queryKey: ['products'],
     queryFn: fetchProducts,
-    staleTime: 10000,
+    staleTime: 6000000,
     refetchOnMount: false,
   });
-
-  console.log('Products:', products);
 
   if (isPendingProducts) return <>Loading</>;
   if (errorProducts) return <>Error</>;
   return (
-    <div>
-      {products.map((product) => {
+    <div id="products-container" className="flex flex-col align-middle">
+      {products.map((product: TProduct) => {
+        console.log(props.data.category);
+
+        if(props.data && props.data.category == product.categoryId)
         return (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-around',
-              alignItems: 'center',
-              margin: '10px',
-              padding: '20px',
-              backgroundColor: 'powderblue',
-            }}
-            id={product.id}
-            key={'key-' + product.id}
-          >
-            <div>
-              <img src="" alt="product-image" />
-            </div>
-            <div id={'name-' + product.id}>{product.name}</div>
-            <div id={'price-' + product.id}>{product.sellingPrice}</div>
-            <div>
-              <button id={'addBtn-' + product.id} onClick={handleAddToCart}>
-                Add
-              </button>
-            </div>
-            <div>
-              <button
-                id={'remBtn-' + product.id}
-                onClick={handleRemoveFromCart}
+          <>
+            <div
+              className="flex flex-row-reverse justify-around align-middle m-5 p-2"
+              id={product.id}
+              key={'key-' + product.id}
+            >
+              <div className="w-28 flex flex-col justify-center">
+                <img
+                  src="https://nomoneynotime.com.au/imager/uploads/recipes/12569/shutterstock_2042520416-1_461122a663362b265b24d0ffaf0f7f5f.jpeg"
+                  alt="product-image"
+                />
+              </div>
+
+              <div
+                className="m-2 flex flex-col justify-center"
+                id={'name-' + product.id}
               >
-                Remove
-              </button>
+                {product.name}
+              </div>
+
+              <div
+                className="m-2 flex flex-col justify-center"
+                id={'price-' + product.id}
+              >
+                {product.sellingPrice[Object.keys(product.sellingPrice)[0]]}
+              </div>
+
+              <div className="m-2 w-14 flex flex-col justify-center">
+                <button
+                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
+                  id={'addBtn-' + product.id}
+                  onClick={handleAddToCart}
+                >
+                  Add
+                </button>
+              </div>
+
+              <div className="m-2 w-24 flex flex-col justify-center">
+                <button
+                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
+                  id={'remBtn-' + product.id}
+                  onClick={handleRemoveFromCart}
+                >
+                  Remove
+                </button>
+              </div>
             </div>
-          </div>
+            <hr />
+          </>
         );
       })}
     </div>

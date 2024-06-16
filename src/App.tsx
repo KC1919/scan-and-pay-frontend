@@ -1,5 +1,5 @@
 import { CategoryForm2 } from './components/CategoryForm2';
-import Menu from './components/Menu';
+import Home from './components/Home';
 import { ProductForm } from './components/ProductForm';
 import Navbar from './components/Navbar';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -27,6 +27,7 @@ function App() {
       >
         <Router>
           <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/user/:table_number" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin/category" element={<CategoryForm2 />} />
@@ -35,7 +36,6 @@ function App() {
               path="/user/verify-otp/:table_number/:user_id"
               element={<OtpVerify />}
             />
-            <Route path="/menu" element={<Menu />} />
             <Route path="/user/order" element={<Order />} />
           </Routes>
         </Router>

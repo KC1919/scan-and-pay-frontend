@@ -1,18 +1,16 @@
 export interface TProduct {
   id: string;
   name: string;
-  quantity: number;
-  costPrice: number;
-  sellingPrice: number;
-  isVeg: boolean;
+  sellingPrice: JSON;
+  vegTag: boolean;
+  disabled: boolean;
   categoryId: string | null;
+  imageUrl: string;
 }
 
 export interface TProductCreate {
   name: string;
-  quantity: number;
-  costPrice: number;
   sellingPrice: number;
-  isVeg: boolean;
+  vegTag: boolean;
   categoryId: string | null;
 }
