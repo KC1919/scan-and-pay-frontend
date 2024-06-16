@@ -2,21 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { TProduct } from '../types/productType';
 // import { CategoryRounded } from "@mui/icons-material";
 
-const fetchProducts = async () => {
-  const response = await (
-    await fetch('http://localhost:3000/api/v1/products/all', {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-  ).json();
-
-  console.log('Response fetch products:', response);
-  return response.content.data;
-};
-
 const Product = (props) => {
   const handleAddToCart = (e) => {
     try {
@@ -105,78 +90,61 @@ const Product = (props) => {
     }
   };
 
-  // use Query hooks
-  const {
-    isPending: isPendingProducts,
-    error: errorProducts,
-    data: products,
-  } = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts,
-    staleTime: 6000000,
-    refetchOnMount: false,
-  });
-
-  if (isPendingProducts) return <>Loading</>;
-  if (errorProducts) return <>Error</>;
   return (
     <div id="products-container" className="flex flex-col align-middle">
-      {products.map((product: TProduct) => {
-        console.log(props.data.category);
+      <>
+        <div
+          className="flex flex-row-reverse justify-around align-middle m-5 p-2"
+          id={props.data.product.id}
+          key={'key-' + props.data.product.id}
+        >
+          <div className="w-28 flex flex-col justify-center">
+            <img
+              src="https://nomoneynotime.com.au/imager/uploads/recipes/12569/shutterstock_2042520416-1_461122a663362b265b24d0ffaf0f7f5f.jpeg"
+              alt="product-image"
+            />
+          </div>
 
-        if(props.data && props.data.category == product.categoryId)
-        return (
-          <>
-            <div
-              className="flex flex-row-reverse justify-around align-middle m-5 p-2"
-              id={product.id}
-              key={'key-' + product.id}
+          <div
+            className="m-2 flex flex-col justify-center"
+            id={'name-' + props.data.product.id}
+          >
+            {props.data.product.name}
+          </div>
+
+          <div
+            className="m-2 flex flex-col justify-center"
+            id={'price-' + props.data.product.id}
+          >
+            {
+              props.data.product.sellingPrice[
+                Object.keys(props.data.product.sellingPrice)[0]
+              ]
+            }
+          </div>
+
+          <div className="m-2 w-14 flex flex-col justify-center">
+            <button
+              className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
+              id={'addBtn-' + props.data.product.id}
+              onClick={handleAddToCart}
             >
-              <div className="w-28 flex flex-col justify-center">
-                <img
-                  src="https://nomoneynotime.com.au/imager/uploads/recipes/12569/shutterstock_2042520416-1_461122a663362b265b24d0ffaf0f7f5f.jpeg"
-                  alt="product-image"
-                />
-              </div>
+              Add
+            </button>
+          </div>
 
-              <div
-                className="m-2 flex flex-col justify-center"
-                id={'name-' + product.id}
-              >
-                {product.name}
-              </div>
-
-              <div
-                className="m-2 flex flex-col justify-center"
-                id={'price-' + product.id}
-              >
-                {product.sellingPrice[Object.keys(product.sellingPrice)[0]]}
-              </div>
-
-              <div className="m-2 w-14 flex flex-col justify-center">
-                <button
-                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
-                  id={'addBtn-' + product.id}
-                  onClick={handleAddToCart}
-                >
-                  Add
-                </button>
-              </div>
-
-              <div className="m-2 w-24 flex flex-col justify-center">
-                <button
-                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
-                  id={'remBtn-' + product.id}
-                  onClick={handleRemoveFromCart}
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-            <hr />
-          </>
-        );
-      })}
+          <div className="m-2 w-24 flex flex-col justify-center">
+            <button
+              className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
+              id={'remBtn-' + props.data.product.id}
+              onClick={handleRemoveFromCart}
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+        <hr />
+      </>
     </div>
   );
 };

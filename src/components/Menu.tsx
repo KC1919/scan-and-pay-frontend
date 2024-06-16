@@ -5,6 +5,7 @@ import { Icategory } from '../types/categoryType';
 import { AppContext } from './Context/AppContext';
 import Product from './Product';
 import { useNavigate } from 'react-router';
+import { TProduct } from '@/types/productType';
 
 const Menu = () => {
   const [category, setCategory] = useState('');
@@ -67,7 +68,7 @@ const Menu = () => {
     return response.content.data;
   };
 
-  // use Query hooks
+  // Category Query hooks
   const {
     isPending: isPendingCategories,
     error: errorCategories,
@@ -79,8 +80,39 @@ const Menu = () => {
     refetchOnMount: false,
   });
 
+  // fetch all the products
+  const fetchProducts = async () => {
+    const response = await (
+      await fetch('http://localhost:3000/api/v1/products/all', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    ).json();
+
+    console.log('Response fetch products:', response);
+    return response.content.data;
+  };
+
+  // Product Query hooks
+  const {
+    isPending: isPendingProducts,
+    error: errorProducts,
+    data: products,
+  } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+    staleTime: 6000000,
+    refetchOnMount: false,
+  });
+
   if (isPendingCategories) return <>Loading</>;
   if (errorCategories) return <>Error</>;
+
+  if (isPendingProducts) return <>Loading</>;
+  if (errorProducts) return <>Error</>;
 
   return (
     <div>
@@ -102,7 +134,15 @@ const Menu = () => {
       <div className="m-1 mb-2">
         <hr />
       </div>
-      <Product data={{category}} />
+
+      {products.map((product: TProduct) => {
+        if (category.length === 0) return <Product data={{ product }} />;
+        else {
+          return (
+            category === product.categoryId && <Product data={{ product }} />
+          );
+        }
+      })}
     </div>
   );
 };
