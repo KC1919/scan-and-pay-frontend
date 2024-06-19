@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 // import { CategoryRounded } from "@mui/icons-material";
 import { Icategory } from '../types/categoryType';
 import { AppContext } from './Context/AppContext';
-import Product from './Product';
+import Item from './Item';
 import { useNavigate } from 'react-router';
 import { TProduct } from '@/types/productType';
 
@@ -53,6 +53,7 @@ const Menu = () => {
     navigate('/user/order');
   };
 
+  // fetch all category data
   const fetchCategories = async () => {
     const response = await (
       await fetch('http://localhost:3000/api/v1/category/all', {
@@ -80,7 +81,7 @@ const Menu = () => {
     refetchOnMount: false,
   });
 
-  // fetch all the products
+  // fetch all the products data
   const fetchProducts = async () => {
     const response = await (
       await fetch('http://localhost:3000/api/v1/products/all', {
@@ -136,10 +137,10 @@ const Menu = () => {
       </div>
 
       {products.map((product: TProduct) => {
-        if (category.length === 0) return <Product data={{ product }} />;
+        if (category.length === 0) return <Item data={{ product }} />;
         else {
           return (
-            category === product.categoryId && <Product data={{ product }} />
+            category === product.categoryId && <Item data={{ product }} />
           );
         }
       })}

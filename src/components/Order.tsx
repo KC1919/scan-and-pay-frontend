@@ -13,7 +13,7 @@
 
 import React, { useContext } from 'react';
 import { AppContext } from './Context/AppContext';
-import Item from './Item';
+import Item from './Product';
 
 const Order = () => {
   const { cartProducts } = useContext(AppContext);

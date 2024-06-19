@@ -10,7 +10,7 @@ export interface TProduct {
 
 export interface TProductCreate {
   name: string;
-  sellingPrice: number;
+  sellingPrice: JSON;
   vegTag: boolean;
   categoryId: string | null;
 }
