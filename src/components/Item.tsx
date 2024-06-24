@@ -1,6 +1,7 @@
 // import { CategoryRounded } from "@mui/icons-material";
 
 const Item = (props) => {
+  const isAdmin = localStorage.getItem('isAdmin');
 
   const handleAddToCart = (e) => {
     try {
@@ -89,6 +90,74 @@ const Item = (props) => {
     }
   };
 
+  const disableItem = async (productId: string) => {
+    try {
+      console.log(productId);
+
+      const response = await fetch(
+        `http://localhost:3000/api/v1/products/disable/${productId}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ disable: true }),
+        }
+      );
+
+      console.log(response);
+    } catch (error) {
+      console.log('Item: Failed to disable item', error);
+      alert('Item: Failed to disable item');
+    }
+  };
+
+  const enableItem = async (productId: string) => {
+    try {
+      console.log(productId);
+
+      const response = await fetch(
+        `http://localhost:3000/api/v1/products/disable/${productId}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ disable: false }),
+        }
+      );
+
+      console.log(response);
+    } catch (error) {
+      console.log('Item: Failed to enable item', error);
+      alert('Item: Failed to enable item');
+    }
+  };
+
+  const deleteItem = async (productId: string) => {
+    try {
+      console.log(productId);
+
+      const response = await fetch(
+        `http://localhost:3000/api/v1/products/delete/${productId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log(response);
+    } catch (error) {
+      console.log('Item: Failed to delete item', error);
+      alert('Item: Failed to delete item');
+    }
+  };
+
   return (
     <div id="products-container" className="flex flex-col align-middle">
       <>
@@ -122,25 +191,75 @@ const Item = (props) => {
             }
           </div>
 
-          <div className="m-2 w-14 flex flex-col justify-center">
-            <button
-              className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
-              id={'addBtn-' + props.data.product.id}
-              onClick={handleAddToCart}
-            >
-              Add
-            </button>
-          </div>
+          {isAdmin === 'false' && (
+            <>
+              <div className="m-2 w-14 flex flex-col justify-center">
+                <button
+                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
+                  id={'addBtn-' + props.data.product.id}
+                  onClick={handleAddToCart}
+                >
+                  Add
+                </button>
+              </div>
 
-          <div className="m-2 w-24 flex flex-col justify-center">
-            <button
-              className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
-              id={'remBtn-' + props.data.product.id}
-              onClick={handleRemoveFromCart}
-            >
-              Remove
-            </button>
-          </div>
+              <div className="m-2 w-24 flex flex-col justify-center">
+                <button
+                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
+                  id={'remBtn-' + props.data.product.id}
+                  onClick={handleRemoveFromCart}
+                >
+                  Remove
+                </button>
+              </div>
+            </>
+          )}
+
+          {isAdmin === 'true' &&
+            <>
+              <div className="m-2 w-16 flex flex-col justify-center">
+                <button
+                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
+                  id={'updateBtn-' + props.data.product.id}
+                  onClick={handleAddToCart}
+                >
+                  Update
+                </button>
+              </div>
+              <div className="m-2 w-16 flex flex-col justify-center">
+                <button
+                  className="justify-center cursor-pointer border border-red-600 rounded text-white bg-red-600"
+                  id={'deleteBtn-' + props.data.product.id}
+                  onClick={() => deleteItem(props.data.product.id)}
+                >
+                  Delete
+                </button>
+              </div>
+
+              {props.data.product.disabled === false && (
+                <div className="m-2 w-16 flex flex-col justify-center">
+                  <button
+                    className="justify-center cursor-pointer border border-gray-600 rounded text-white bg-gray-500"
+                    id={'disableBtn-' + props.data.product.id}
+                    onClick={() => disableItem(props.data.product.id)}
+                  >
+                    Disable
+                  </button>
+                </div>
+              )}
+              {props.data.product.disabled === true && (
+                <div className="m-2 w-16 flex flex-col justify-center">
+                  <button
+                    className="justify-center cursor-pointer border border-yellow-300 rounded hover:text-black bg-yellow-100"
+                    id={'enableBtn-' + props.data.product.id}
+                    onClick={() => enableItem(props.data.product.id)}
+                  >
+                    Enable
+                  </button>
+                </div>
+              )}
+            </>
+          }
         </div>
         <hr />
       </>

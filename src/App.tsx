@@ -9,6 +9,7 @@ import OtpVerify from './components/OtpVerify';
 import Landing from './components/Landing';
 import { AppContext } from './components/Context/AppContext';
 import Order from './components/Order';
+import Products from './components/Products';
 // import { useQuery } from "@tanstack/react-query";
 function App() {
   const [tableNumber, setTableNumber] = useState('');
@@ -31,7 +32,8 @@ function App() {
             <Route path="/user/:table_number" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin/category" element={<CategoryForm2 />} />
-            <Route path="/admin/product" element={<ProductForm />} />
+            <Route path="/admin/product/create" element={<ProductForm />} />
+            <Route path="/admin/products" element={<Products />} />
             <Route
               path="/user/verify-otp/:table_number/:user_id"
               element={<OtpVerify />}

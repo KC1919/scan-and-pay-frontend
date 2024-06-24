@@ -37,7 +37,9 @@ const Login = () => {
 
     console.log(jsonResp);
 
-    navigate('/')
+    localStorage.setItem('isAdmin', 'true');
+
+    navigate('/');
   };
 
   return (

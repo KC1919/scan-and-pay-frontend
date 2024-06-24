@@ -1,4 +1,4 @@
-import React, { EventHandler, useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 // import { CategoryRounded } from "@mui/icons-material";
 import { Icategory } from '../types/categoryType';
@@ -6,9 +6,11 @@ import { AppContext } from './Context/AppContext';
 import Item from './Item';
 import { useNavigate } from 'react-router';
 import { TProduct } from '@/types/productType';
+import SearchBar from './SearchBar';
 
 const Menu = () => {
   const [category, setCategory] = useState('');
+  const [productsData, setProductsData] = useState([]);
 
   const navigate = useNavigate();
   const { cartProducts, setCartProducts } = useContext(AppContext);
@@ -109,6 +111,17 @@ const Menu = () => {
     refetchOnMount: false,
   });
 
+    // Update productsData when the query data changes
+    useEffect(() => {      
+      if (products) {
+        setProductsData(products);
+      }
+    }, [products,category]);
+  
+    const handleSearch = (searchResults: TProduct[]) => {
+      setProductsData(searchResults);
+    };
+
   if (isPendingCategories) return <>Loading</>;
   if (errorCategories) return <>Error</>;
 
@@ -117,6 +130,7 @@ const Menu = () => {
 
   return (
     <div>
+      <SearchBar onSearch={handleSearch}/>
       <div id="category-container" className="flex flex-row align-middle">
         {categories.map((cat: Icategory) => {
           return (
@@ -136,12 +150,11 @@ const Menu = () => {
         <hr />
       </div>
 
-      {products.map((product: TProduct) => {
-        if (category.length === 0) return <Item data={{ product }} />;
+      {productsData.map((product: TProduct) => {
+        if (category.length === 0 && product.disabled === false)
+          return <Item data={{ product }} />;
         else {
-          return (
-            category === product.categoryId && <Item data={{ product }} />
-          );
+          return category === product.categoryId && <Item data={{ product }} />;
         }
       })}
     </div>
