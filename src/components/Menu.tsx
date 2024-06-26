@@ -7,10 +7,13 @@ import Item from './Item';
 import { useNavigate } from 'react-router';
 import { TProduct } from '@/types/productType';
 import SearchBar from './SearchBar';
+import { Button } from './ui/button';
 
 const Menu = () => {
   const [category, setCategory] = useState('');
   const [productsData, setProductsData] = useState([]);
+  const [vegTag, setVegTag] = useState(null);
+  const [nonVegTag, setNonVegTag] = useState(null);
 
   const navigate = useNavigate();
   const { cartProducts, setCartProducts } = useContext(AppContext);
@@ -55,6 +58,33 @@ const Menu = () => {
     navigate('/user/order');
   };
 
+  const handleVegTag = (e) => {
+    try {
+      if (vegTag === null || vegTag === false) {
+        setVegTag(true);
+        setNonVegTag(false);
+      } else if (vegTag === true) {
+        setVegTag(false);
+      }
+    } catch (error) {
+      console.log('Failed to filter veg items', error);
+      alert('Failed to filter veg items');
+    }
+  };
+
+  const handleNonVegTag = (e) => {
+    try {
+      if (nonVegTag === null || nonVegTag === false) {
+        setNonVegTag(true);
+        setVegTag(false);
+      } else {
+        setNonVegTag(false);
+      }
+    } catch (error) {
+      console.log('Failed to filter veg items', error);
+      alert('Failed to filter veg items');
+    }
+  };
   // fetch all category data
   const fetchCategories = async () => {
     const response = await (
@@ -107,20 +137,20 @@ const Menu = () => {
   } = useQuery({
     queryKey: ['products'],
     queryFn: fetchProducts,
-    staleTime: 6000000,
+    staleTime: 6000,
     refetchOnMount: false,
   });
 
-    // Update productsData when the query data changes
-    useEffect(() => {      
-      if (products) {
-        setProductsData(products);
-      }
-    }, [products,category]);
-  
-    const handleSearch = (searchResults: TProduct[]) => {
-      setProductsData(searchResults);
-    };
+  // Update productsData when the query data changes
+  useEffect(() => {
+    if (products) {
+      setProductsData(products);
+    }
+  }, [products, category]);
+
+  const handleSearch = (searchResults: TProduct[]) => {
+    setProductsData(searchResults);
+  };
 
   if (isPendingCategories) return <>Loading</>;
   if (errorCategories) return <>Error</>;
@@ -130,31 +160,87 @@ const Menu = () => {
 
   return (
     <div>
-      <SearchBar onSearch={handleSearch}/>
-      <div id="category-container" className="flex flex-row align-middle">
-        {categories.map((cat: Icategory) => {
-          return (
-            <div className="p-1 m-2" key={cat.id}>
-              <button
-                id={cat.id}
-                className="p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100"
-                onClick={selectCategory}
-              >
-                {cat.name}
-              </button>
-            </div>
-          );
-        })}
+      <SearchBar onSearch={handleSearch} />
+      <div
+        id="category-filter-parent-container"
+        className="px-5 flex flex-row align-middle justify-between"
+      >
+        <div id="category-container" className="flex flex-row align-middle">
+          {categories.map((cat: Icategory) => {
+            return (
+              <div className="p-1 m-2" key={cat.id}>
+                <button
+                  id={cat.id}
+                  className="p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100"
+                  onClick={selectCategory}
+                >
+                  {cat.name}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div
+          id="vegtag-container"
+          className="flex flex-row align-middle justify-center w-1/5"
+        >
+          <div id="veg-tag-btn-div" className="m-2">
+            <button
+              id="veg-tag-btn"
+              className={`w-10 p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100 text-sm ${vegTag?'bg-yellow-300':null}`}
+              onClick={handleVegTag}
+            >
+              Veg
+            </button>
+          </div>
+          <div id="non-veg-tag-btn-div" className="m-2">
+            <button
+              id="non-veg-tag-btn"
+              className={`w-auto p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100 text-sm ${nonVegTag?'bg-yellow-300':null}`}
+              onClick={handleNonVegTag}
+            >
+              Non-veg
+            </button>
+          </div>
+        </div>
       </div>
       <div className="m-1 mb-2">
         <hr />
       </div>
 
       {productsData.map((product: TProduct) => {
-        if (category.length === 0 && product.disabled === false)
-          return <Item data={{ product }} />;
-        else {
-          return category === product.categoryId && <Item data={{ product }} />;
+        // filter disabled products
+        if (product.disabled === false) {
+          if (category.length === 0) {
+            if (
+              (vegTag === null && nonVegTag === null) ||
+              (vegTag === false && nonVegTag === false)
+            )
+              return <Item data={{ product }} />;
+            else if (vegTag === true && product.vegTag === true) {
+              return <Item data={{ product }} />;
+            } else if (nonVegTag === true && product.vegTag === false) {
+              return <Item data={{ product }} />;
+            }
+          } else if (category.length > 0) {
+            if (
+              (vegTag === null && nonVegTag === null) ||
+              (vegTag === false && nonVegTag === false)
+            )
+              return (
+                category === product.categoryId && <Item data={{ product }} />
+              );
+            else if (vegTag === true && product.vegTag === true) {
+              return (
+                category === product.categoryId && <Item data={{ product }} />
+              );
+            } else if (nonVegTag === true && product.vegTag === false) {
+              return (
+                category === product.categoryId && <Item data={{ product }} />
+              );
+            }
+          }
         }
       })}
     </div>

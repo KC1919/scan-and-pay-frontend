@@ -34,7 +34,7 @@ const Products = () => {
   const { isLoading, error, data } = useQuery({
     queryKey: ['products'],
     queryFn: fetchProducts,
-    staleTime: 6000000, //ms
+    staleTime: 6000, //ms
     refetchOnMount: true,
   });
 
@@ -65,6 +65,9 @@ const Products = () => {
     <div className="text-center">
       <SearchBar onSearch={handleSearch} />
       <div>Products</div>
+      <div className="m-1 mb-2">
+        <hr />
+      </div>
       {productsData &&
         productsData.map((product: TProduct) => (
           <Item key={product.id} data={{ product }} />

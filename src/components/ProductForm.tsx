@@ -120,15 +120,20 @@ export function ProductForm() {
       quantityPriceContainerElem.childNodes.forEach((child) => {
         const prodQuantity = child.childNodes[0].childNodes[1].value;
         const prodPrice = Number(child.childNodes[1].childNodes[1].value);
-        quantityPriceData.push({ quantity: prodQuantity, price: Number(prodPrice) });
+        quantityPriceData.push({
+          quantity: prodQuantity,
+          price: Number(prodPrice),
+        });
       });
-
+      
       createProductMutation.mutate({
         name: createText,
         sellingPrice: quantityPriceData,
         vegTag: vegTagCreate,
         categoryId: categoryId,
       });
+
+      e.target.reset();
     } catch (error) {
       console.log('Failed to create product', error);
       alert('Failed to create product');
@@ -206,7 +211,7 @@ export function ProductForm() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleProductCreate}>
+            <form id="product-form" onSubmit={handleProductCreate}>
               <div className="grid w-full items-center gap-4">
                 {/** NAME PRODUCT */}
                 <div
