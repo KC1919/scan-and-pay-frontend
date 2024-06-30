@@ -23,9 +23,9 @@ function App() {
       }}
     >
       <Navbar />
-      <AppContext.Provider
+      {/* <AppContext.Provider
         value={{ tableNumber, setTableNumber, cartProducts, setCartProducts }}
-      >
+      > */}
         <Router>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -41,7 +41,7 @@ function App() {
             <Route path="/user/order" element={<Order />} />
           </Routes>
         </Router>
-      </AppContext.Provider>
+      {/* </AppContext.Provider> */}
     </div>
   );
 }

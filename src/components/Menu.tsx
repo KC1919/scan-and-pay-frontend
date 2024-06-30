@@ -11,12 +11,14 @@ import { Button } from './ui/button';
 
 const Menu = () => {
   const [category, setCategory] = useState('');
-  const [productsData, setProductsData] = useState([]);
+  const [productsData, setProductsData] = useState(Array<TProduct>);
   const [vegTag, setVegTag] = useState(null);
   const [nonVegTag, setNonVegTag] = useState(null);
+  const [searchResult, setSearchResult] = useState(null);
+
+  const { isSearching } = useContext(AppContext);
 
   const navigate = useNavigate();
-  const { cartProducts, setCartProducts } = useContext(AppContext);
 
   const selectCategory = (e) => {
     try {
@@ -85,6 +87,31 @@ const Menu = () => {
       alert('Failed to filter veg items');
     }
   };
+
+  const renderProducts = (products: Array<TProduct>) => {
+    try {
+      const filterResult = products
+        .filter((product) => !product.disabled)
+        .filter((product) => {
+          if (!category) return true;
+          return product.categoryId === category;
+        })
+        .filter((product) => {
+          if (vegTag === true) return product.vegTag === true;
+          if (nonVegTag === true) return product.vegTag === false;
+          return true;
+        })
+        .map((product) => <Item key={product.id} data={{ product }} />);
+
+      if (filterResult.length === 0)
+        return <div className="text-center p-1">Not found!</div>;
+      return filterResult;
+    } catch (error) {
+      console.log('Failed to render products', error);
+      alert('Failed to render products');
+    }
+  };
+
   // fetch all category data
   const fetchCategories = async () => {
     const response = await (
@@ -137,7 +164,7 @@ const Menu = () => {
   } = useQuery({
     queryKey: ['products'],
     queryFn: fetchProducts,
-    staleTime: 6000,
+    staleTime: 600000,
     refetchOnMount: false,
   });
 
@@ -149,7 +176,7 @@ const Menu = () => {
   }, [products, category]);
 
   const handleSearch = (searchResults: TProduct[]) => {
-    setProductsData(searchResults);
+    setSearchResult(searchResults);
   };
 
   if (isPendingCategories) return <>Loading</>;
@@ -160,7 +187,7 @@ const Menu = () => {
 
   return (
     <div>
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar onSearch={handleSearch} data={{ products, setSearchResult }} />
       <div
         id="category-filter-parent-container"
         className="px-5 flex flex-row align-middle justify-between"
@@ -188,7 +215,9 @@ const Menu = () => {
           <div id="veg-tag-btn-div" className="m-2">
             <button
               id="veg-tag-btn"
-              className={`w-10 p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100 text-sm ${vegTag?'bg-yellow-300':null}`}
+              className={`w-10 p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100 text-sm ${
+                vegTag ? 'bg-yellow-300' : null
+              }`}
               onClick={handleVegTag}
             >
               Veg
@@ -197,7 +226,9 @@ const Menu = () => {
           <div id="non-veg-tag-btn-div" className="m-2">
             <button
               id="non-veg-tag-btn"
-              className={`w-auto p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100 text-sm ${nonVegTag?'bg-yellow-300':null}`}
+              className={`w-auto p-1 border border-yellow-300 rounded cursor-pointer hover:bg-yellow-100 text-sm ${
+                nonVegTag ? 'bg-yellow-300' : null
+              }`}
               onClick={handleNonVegTag}
             >
               Non-veg
@@ -209,40 +240,17 @@ const Menu = () => {
         <hr />
       </div>
 
-      {productsData.map((product: TProduct) => {
-        // filter disabled products
-        if (product.disabled === false) {
-          if (category.length === 0) {
-            if (
-              (vegTag === null && nonVegTag === null) ||
-              (vegTag === false && nonVegTag === false)
-            )
-              return <Item data={{ product }} />;
-            else if (vegTag === true && product.vegTag === true) {
-              return <Item data={{ product }} />;
-            } else if (nonVegTag === true && product.vegTag === false) {
-              return <Item data={{ product }} />;
-            }
-          } else if (category.length > 0) {
-            if (
-              (vegTag === null && nonVegTag === null) ||
-              (vegTag === false && nonVegTag === false)
-            )
-              return (
-                category === product.categoryId && <Item data={{ product }} />
-              );
-            else if (vegTag === true && product.vegTag === true) {
-              return (
-                category === product.categoryId && <Item data={{ product }} />
-              );
-            } else if (nonVegTag === true && product.vegTag === false) {
-              return (
-                category === product.categoryId && <Item data={{ product }} />
-              );
-            }
-          }
-        }
-      })}
+      {isSearching === true ? (
+        !searchResult ? (
+          <div className="text-center">
+            Please click the search button to perform the search....
+          </div>
+        ) : (
+          renderProducts(searchResult)
+        )
+      ) : (
+        renderProducts(productsData)
+      )}
     </div>
   );
 };

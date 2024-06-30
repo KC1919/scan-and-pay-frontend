@@ -159,7 +159,7 @@ const Item = (props) => {
   };
 
   return (
-    <div id="products-container" className="flex flex-col align-middle">
+    <div id="products-container" className="flex flex-col align-middle justify-center" style={{maxWidth:'100vw'}}>
       <>
         <div
           className="flex flex-row-reverse justify-around align-middle m-5 p-2"
