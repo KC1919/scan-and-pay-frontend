@@ -1,7 +1,14 @@
 // import { CategoryRounded } from "@mui/icons-material";
+import { useContext } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+
+import { AppContext } from './Context/AppContext';
 
 const Item = (props) => {
+  const navigate = useNavigate();
   const isAdmin = localStorage.getItem('isAdmin');
+
+  const { updateProduct, handleUpdateProduct } = useContext(AppContext);
 
   const handleAddToCart = (e) => {
     try {
@@ -94,19 +101,23 @@ const Item = (props) => {
     try {
       console.log(productId);
 
-      const response = await fetch(
-        `http://localhost:3000/api/v1/products/disable/${productId}`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ disable: true }),
-        }
-      );
+      const response = await (
+        await fetch(
+          `http://localhost:3000/api/v1/products/disable/${productId}`,
+          {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ disable: true }),
+          }
+        )
+      ).json();
 
-      console.log(response);
+      if (response.success === true) {
+        alert('Product disabled successfully');
+      }
     } catch (error) {
       console.log('Item: Failed to disable item', error);
       alert('Item: Failed to disable item');
@@ -117,19 +128,23 @@ const Item = (props) => {
     try {
       console.log(productId);
 
-      const response = await fetch(
-        `http://localhost:3000/api/v1/products/disable/${productId}`,
-        {
-          method: 'PUT',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ disable: false }),
-        }
-      );
+      const response = await (
+        await fetch(
+          `http://localhost:3000/api/v1/products/disable/${productId}`,
+          {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ disable: false }),
+          }
+        )
+      ).json();
 
-      console.log(response);
+      if (response.success === true) {
+        alert('Product enabled successfully');
+      }
     } catch (error) {
       console.log('Item: Failed to enable item', error);
       alert('Item: Failed to enable item');
@@ -138,28 +153,59 @@ const Item = (props) => {
 
   const deleteItem = async (productId: string) => {
     try {
-      console.log(productId);
 
-      const response = await fetch(
-        `http://localhost:3000/api/v1/products/delete/${productId}`,
-        {
-          method: 'DELETE',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      const confirmDelete=confirm('Do you want to delete the Product?');
+
+      if(confirmDelete===true){
+        const response = await (
+          await fetch(
+            `http://localhost:3000/api/v1/products/delete/${productId}`,
+            {
+              method: 'DELETE',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+        ).json();
+  
+        if (response.success === true) {
+          alert('Product deleted successfully');
         }
-      );
+      }
 
-      console.log(response);
+      console.log(confirmDelete);
+      
     } catch (error) {
       console.log('Item: Failed to delete item', error);
       alert('Item: Failed to delete item');
     }
   };
 
+  const handleUpdateItem = async (e) => {
+    try {
+      const productId = e.target.id.split('-')[1];
+      const productData = {
+        id: productId,
+        name: props.data.product.name,
+        categoryId: props.data.product.categoryId,
+      };
+      navigate('/admin/product/create', {
+        state: { product: productData, update: true },
+      });
+    } catch (error) {
+      console.log('Failed to render product update form');
+      alert('Failed to redirect to product update form');
+    }
+  };
+
   return (
-    <div id="products-container" className="flex flex-col align-middle justify-center" style={{maxWidth:'100vw'}}>
+    <div
+      id="products-container"
+      className="flex flex-col align-middle justify-center"
+      style={{ maxWidth: '100vw' }}
+    >
       <>
         <div
           className="flex flex-row-reverse justify-around align-middle m-5 p-2"
@@ -184,6 +230,8 @@ const Item = (props) => {
             className="m-2 flex flex-col justify-center"
             id={'price-' + props.data.product.id}
           >
+            {' '}
+            Rs.
             {
               props.data.product.sellingPrice[
                 Object.keys(props.data.product.sellingPrice)[0]
@@ -215,20 +263,20 @@ const Item = (props) => {
             </>
           )}
 
-          {isAdmin === 'true' &&
+          {isAdmin === 'true' && (
             <>
               <div className="m-2 w-16 flex flex-col justify-center">
                 <button
                   className="justify-center cursor-pointer border border-red-600 rounded hover:text-red-600 hover:bg-red-100"
                   id={'updateBtn-' + props.data.product.id}
-                  onClick={handleAddToCart}
+                  onClick={handleUpdateItem}
                 >
                   Update
                 </button>
               </div>
               <div className="m-2 w-16 flex flex-col justify-center">
                 <button
-                  className="justify-center cursor-pointer border border-red-600 rounded text-white bg-red-600"
+                  className="justify-center cursor-pointer border border-red-600 rounded hover:text-white hover:bg-red-600"
                   id={'deleteBtn-' + props.data.product.id}
                   onClick={() => deleteItem(props.data.product.id)}
                 >
@@ -239,7 +287,7 @@ const Item = (props) => {
               {props.data.product.disabled === false && (
                 <div className="m-2 w-16 flex flex-col justify-center">
                   <button
-                    className="justify-center cursor-pointer border border-gray-600 rounded text-white bg-gray-500"
+                    className="justify-center cursor-pointer border border-gray-600 rounded hover:text-white hover:bg-slate-500 bg-gray-200"
                     id={'disableBtn-' + props.data.product.id}
                     onClick={() => disableItem(props.data.product.id)}
                   >
@@ -250,7 +298,7 @@ const Item = (props) => {
               {props.data.product.disabled === true && (
                 <div className="m-2 w-16 flex flex-col justify-center">
                   <button
-                    className="justify-center cursor-pointer border border-yellow-300 rounded hover:text-black bg-yellow-100"
+                    className="justify-center cursor-pointer border border-yellow-300 rounded hover:bg-yellow-200 hover:border-yellow-500 bg-yellow-100"
                     id={'enableBtn-' + props.data.product.id}
                     onClick={() => enableItem(props.data.product.id)}
                   >
@@ -259,7 +307,7 @@ const Item = (props) => {
                 </div>
               )}
             </>
-          }
+          )}
         </div>
         <hr />
       </>

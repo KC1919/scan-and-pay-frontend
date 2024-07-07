@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Icategory } from '@/types/categoryType';
 import { Button } from '@/components/ui/button';
+import { useLocation } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -21,28 +22,58 @@ import {
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { TProduct, TProductCreate } from '@/types/productType';
+import { AppContext } from './Context/AppContext';
 
 // call back
 const createProduct = async (data: TProductCreate) => {
   // console.log('name in createProductCB', name);
+  try {
+    const response = await (
+      await fetch('http://localhost:3000/api/v1/products/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      })
+    ).json();
 
-  const response = await (
-    await fetch('http://localhost:3000/api/v1/products/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-      credentials: 'include',
-    })
-  ).json();
+    if (response.success === true) {
+      console.log('Product created');
+      alert('Product created');
+    } else {
+      console.log('Failed to create product');
+      alert('Failed to create product');
+    }
+  } catch (error) {
+    console.log('failed to create product');
+  }
+};
 
-  if (response.success === true) {
-    console.log('Product created');
-    alert('Product created');
-  } else {
-    console.log('Failed to create product');
-    alert('Failed to create product');
+const updateProduct = async (data: TProductCreate) => {
+  try {
+    const response = await (
+      await fetch(`http://localhost:3000/api/v1/products/update/${data.id}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+    ).json();
+
+    if (response.success === true) {
+      console.log('Product updated');
+      alert('Product updated');
+    } else {
+      console.log('Failed to update product');
+      alert('Failed to update product');
+    }
+  } catch (error) {
+    console.log('Failed to update product', error);
+    alert('Failed to update product');
   }
 };
 
@@ -77,11 +108,24 @@ const fetchProducts = async (): Promise<TProduct[]> => {
 };
 
 export function ProductForm() {
+  const { state } = useLocation();
+
   const [createText, setCreateText] = useState('');
+  const [isUpdate, setIsUpdate] = useState(false);
   // const [sp, setSp] = useState(0.0);
   // const [quantity, setQuantity] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [vegTagCreate, setVegTagCreate] = useState(true);
+
+  // const { updateProduct, handleUpdateProduct } = useContext(AppContext);
+
+  useEffect(() => {
+    if (state != null) {
+      setIsUpdate(state.update);
+      setCreateText(state.product.name);
+      setCategoryId(state.product.categoryId);
+    }
+  }, [state]);
 
   const handleAddQuantity = (e) => {
     try {
@@ -100,6 +144,24 @@ export function ProductForm() {
     } catch (error) {
       console.log('Failed to add quantity-price div');
       alert('Failed to add quantity-price div');
+    }
+  };
+
+  const handleRemoveQuantity = (e) => {
+    try {
+      e.preventDefault();
+      const quantityPriceContainerElem = document.getElementById(
+        'quantity-price-container'
+      );
+      const quantityPriceDivsCount = quantityPriceContainerElem?.childNodes.length;
+
+      if(quantityPriceDivsCount && quantityPriceDivsCount>1){
+        quantityPriceContainerElem?.removeChild(quantityPriceContainerElem.lastChild)
+      }
+      
+    } catch (error) {
+      console.log('Failed to remove quantity', error);
+      alert('Failed to remove quantity');
     }
   };
 
@@ -125,7 +187,7 @@ export function ProductForm() {
           price: Number(prodPrice),
         });
       });
-      
+
       createProductMutation.mutate({
         name: createText,
         sellingPrice: quantityPriceData,
@@ -137,6 +199,44 @@ export function ProductForm() {
     } catch (error) {
       console.log('Failed to create product', error);
       alert('Failed to create product');
+    }
+  };
+
+  const handleProductUpdate = (e) => {
+    try {
+      e.preventDefault();
+      const quantityPriceContainerElem = document.getElementById(
+        'quantity-price-container'
+      ) as HTMLDivElement;
+
+      interface quantityPriceDataInterface {
+        quantity: string;
+        price: number;
+      }
+
+      const quantityPriceData: Array<quantityPriceDataInterface> = [];
+
+      quantityPriceContainerElem.childNodes.forEach((child) => {
+        const prodQuantity = child.childNodes[0].childNodes[1].value;
+        const prodPrice = Number(child.childNodes[1].childNodes[1].value);
+        quantityPriceData.push({
+          quantity: prodQuantity,
+          price: Number(prodPrice),
+        });
+      });
+
+      updateProductMutation.mutate({
+        id: state.product.id,
+        name: createText,
+        sellingPrice: quantityPriceData,
+        vegTag: vegTagCreate,
+        categoryId: categoryId,
+      });
+
+      e.target.reset();
+    } catch (error) {
+      console.log('Failed to update product', error);
+      alert('Failed to update product');
     }
   };
 
@@ -153,6 +253,10 @@ export function ProductForm() {
   // Tansatck query hooks
   const createProductMutation = useMutation({
     mutationFn: createProduct,
+  });
+
+  const updateProductMutation = useMutation({
+    mutationFn: updateProduct,
   });
 
   const {
@@ -189,6 +293,18 @@ export function ProductForm() {
     );
   }
 
+  if (updateProductMutation.isPending) {
+    return <div> Updating...</div>;
+  }
+
+  if (updateProductMutation.error) {
+    return (
+      <div>
+        Error in updating product: {updateProductMutation.error.message}
+      </div>
+    );
+  }
+
   if (isPendingCategories || isPendingProducts) return <>Loading</>;
   if (errorProducts || errorCategories) {
     return (
@@ -206,12 +322,19 @@ export function ProductForm() {
       <div className="m-2">
         <Card className="w-6/7">
           <CardHeader>
-            <CardTitle className="text-base">Create Product</CardTitle>
+            {isUpdate === false ? (
+              <CardTitle className="text-base">Create Product</CardTitle>
+            ) : (
+              <CardTitle className="text-base">Update Product</CardTitle>
+            )}
             <CardDescription>Enter Product details</CardDescription>
           </CardHeader>
 
           <CardContent>
-            <form id="product-form" onSubmit={handleProductCreate}>
+            <form
+              id="product-form"
+              onSubmit={isUpdate ? handleProductUpdate : handleProductCreate}
+            >
               <div className="grid w-full items-center gap-4">
                 {/** NAME PRODUCT */}
                 <div
@@ -221,11 +344,13 @@ export function ProductForm() {
                   <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
+                    type="text"
                     placeholder="Name of your product"
                     value={createText}
                     onChange={(e) => {
                       setCreateText(e.target.value);
                     }}
+                    disabled={isUpdate}
                     required
                   />
                 </div>
@@ -237,28 +362,49 @@ export function ProductForm() {
                   >
                     {/** QUANTITY PRODCUT */}
                     <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="quantity">Quantity Size</Label>
+                      {isUpdate ? (
+                        <Label htmlFor="quantity">
+                          Quantity Size (Optional)
+                        </Label>
+                      ) : (
+                        <Label htmlFor="quantity">Quantity Size</Label>
+                      )}
                       <Input
                         placeholder="Example: quarter, half, full, small, medium, large, etc..."
                         type="text"
-                        required
+                        required={!isUpdate}
                       />
                     </div>
                     {/* Product Selling Price */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="sellingPrice">Selling Price</Label>
+                    <div className="flex flex-col space-y-1.5 mt-2">
+                      {isUpdate ? (
+                        <Label htmlFor="sellingPrice">
+                          Selling Price (Optional)
+                        </Label>
+                      ) : (
+                        <Label htmlFor="sellingPrice">Selling Price</Label>
+                      )}
                       <Input
                         id="sellingPrice"
                         placeholder="Price in number. example: 90.67"
                         type="number"
-                        required
+                        min={0.0}
+                        required={!isUpdate}
                       />
                     </div>
                   </div>
                 </div>
 
-                <div id="add-quantity-btn">
-                  <Button onClick={handleAddQuantity}>Add</Button>
+                <div
+                  id="add-remove-container"
+                  className="flex justify-around w-1/6"
+                >
+                  <div id="add-quantity-btn">
+                    <Button onClick={handleAddQuantity}>Add</Button>
+                  </div>
+                  <div id="remove-quantity-btn">
+                    <Button onClick={handleRemoveQuantity}>Remove</Button>
+                  </div>
                 </div>
 
                 {/** CATEGORY PRODUCT */}
@@ -267,7 +413,7 @@ export function ProductForm() {
                   id="product-category-div"
                 >
                   <Label htmlFor="categoryId">Category</Label>
-                  <Select require onValueChange={handleSelectCategory}>
+                  <Select required onValueChange={handleSelectCategory}>
                     <SelectTrigger id="categoryCreate">
                       <SelectValue placeholder="Click to Select" />
                     </SelectTrigger>
@@ -288,7 +434,7 @@ export function ProductForm() {
                   id="product-veg-tag-div"
                 >
                   <Label htmlFor="isVeg">Tag</Label>
-                  <RadioGroup defaultValue="veg">
+                  <RadioGroup required defaultValue="veg">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value="veg"
@@ -313,7 +459,11 @@ export function ProductForm() {
                 </div>
               </div>
               <CardFooter className="flex justify-end">
-                <Button>Create</Button>
+                {isUpdate === false ? (
+                  <Button>Create</Button>
+                ) : (
+                  <Button>Update</Button>
+                )}
               </CardFooter>
             </form>
           </CardContent>
@@ -322,7 +472,7 @@ export function ProductForm() {
       {/* end: CREATE product */}
 
       {/* UPDATE PRODUCT */}
-      <div className="m-2">
+      {/* <div className="m-2">
         <Card className="w-6/7">
           <CardHeader>
             <CardTitle>Update Product</CardTitle>
@@ -360,7 +510,7 @@ export function ProductForm() {
             <Button>Done</Button>
           </CardFooter>
         </Card>
-      </div>
+      </div> */}
       {/* end: update category CATEGORY */}
     </div>
   );

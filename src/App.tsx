@@ -1,4 +1,5 @@
-import { CategoryForm2 } from './components/CategoryForm2';
+import { CategoryForm } from './components/CategoryForm';
+import Category from './components/Category';
 import Home from './components/Home';
 import { ProductForm } from './components/ProductForm';
 import Navbar from './components/Navbar';
@@ -26,21 +27,22 @@ function App() {
       {/* <AppContext.Provider
         value={{ tableNumber, setTableNumber, cartProducts, setCartProducts }}
       > */}
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/user/:table_number" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/admin/category" element={<CategoryForm2 />} />
-            <Route path="/admin/product/create" element={<ProductForm />} />
-            <Route path="/admin/products" element={<Products />} />
-            <Route
-              path="/user/verify-otp/:table_number/:user_id"
-              element={<OtpVerify />}
-            />
-            <Route path="/user/order" element={<Order />} />
-          </Routes>
-        </Router>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/user/:table_number" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin/category" element={<Category />} />
+          <Route path="/admin/category/create" element={<CategoryForm />} />
+          <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/product/create" element={<ProductForm />} />
+          <Route
+            path="/user/verify-otp/:table_number/:user_id"
+            element={<OtpVerify />}
+          />
+          <Route path="/user/order" element={<Order />} />
+        </Routes>
+      </Router>
       {/* </AppContext.Provider> */}
     </div>
   );

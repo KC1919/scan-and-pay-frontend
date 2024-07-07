@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { TProduct } from '@/types/productType';
 
 import Item from './Item';
 import SearchBar from './SearchBar';
 
 const Products = () => {
+
   const isAdmin = localStorage.getItem('isAdmin');
 
   const [productsData, setProductsData] = useState<TProduct[] | null>(null);
